@@ -38,9 +38,11 @@ export const addExpense = async (expense) => {
   }
 };
 
-export const fetchExpenses = async (monthYear) => {
+export const fetchExpenses = async () => {
   try {
-    const snapshot = await getDocs(collection(db, monthYear));
+    const collectionName = getMonthCollection(new Date());
+    console.log(collectionName)
+    const snapshot = await getDocs(collection(db, collectionName));
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching expenses:", error);

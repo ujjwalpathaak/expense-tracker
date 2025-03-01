@@ -10,25 +10,28 @@ function ExpenseList({ expenses, setExpenses, setBalance }) {
     setBalance((prev) => prev - (deletedExpense.type === "credit" ? deletedExpense.amount : -deletedExpense.amount));
   };
 
-  // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
-
-  // Filter expenses to show only today's transactions
   const todayExpenses = expenses.filter((expense) => expense.date === today);
-
+  
   return (
-    <ul className="mt-4">
-      {todayExpenses.length > 0 ? (
-        todayExpenses.map((expense) => (
-          <li key={expense.id} className="flex justify-between items-center p-3 mt-2 rounded bg-gray-200">
-            <span>{expense.type === "credit" ? "+" : "-"}₹{expense.amount} - {expense.category} ({expense.date})</span>
-            <FaTrash className="text-red-500 cursor-pointer" onClick={() => handleDeleteExpense(expense.id)} />
-          </li>
-        ))
-      ) : (
-        <li className="text-gray-500">No expenses recorded for today.</li>
-      )}
-    </ul>
+    <>
+      <hr />
+      <p className="font-semibold mb-3 mt-2">Today's Expenses</p>
+      <div className="max-h-60 overflow-y-auto border border-gray-300 rounded p-2">
+        <ul className="mt-4">
+          {todayExpenses.length > 0 ? (
+            todayExpenses.map((expense) => (
+              <li key={expense.id} className="flex justify-between items-center p-3 mt-2 rounded bg-gray-200">
+                <span>₹{expense.amount} - {expense.category}</span>
+                <FaTrash className="text-red-500 cursor-pointer" onClick={() => handleDeleteExpense(expense.id)} />
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-500">No expenses recorded for today.</li>
+          )}
+        </ul>
+      </div>
+    </>
   );
 }
 
