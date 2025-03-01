@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { addExpense } from "../firebase";
 
-function ExpenseForm({setExpenses, expenses}) {
+function ExpenseForm({ setExpenses, expenses }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Food");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -37,21 +37,19 @@ function ExpenseForm({setExpenses, expenses}) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="w-full gap-3 flex justify-center items-baseline">
-        <input
-          type="number"
-          placeholder="Amount"
-          className="border py-1 px-2 rounded-full bg-transparent"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          />      <input
-          type="date"
-          className="border mt-1 py-1 px-2 rounded-full bg-transparent"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        ></input>
-          </div>
-
+      <input
+        type="number"
+        placeholder="Amount"
+        className="border py-1 px-2 rounded-full bg-transparent"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+      <input
+        type="date"
+        className="border mt-1 py-1 px-2 rounded-full bg-transparent"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+      ></input>
       {/* Category Selection */}
       <div className="flex mt-3 flex-wrap gap-3">
         {categories.map((cat) => (

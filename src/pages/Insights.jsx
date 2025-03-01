@@ -3,50 +3,49 @@ import { fetchExpenses } from "../firebase";
 import ChartComponent from "../components/ChartComponent";
 
 function Insights() {
+  const currentMonth = new Date().toISOString().slice(0, 7); // Get current month in YYYY-MM format
   const [expenses, setExpenses] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(""); // Store selected date
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth); // Set default month
+
+  const handleMonthChange = async (e) => {
+    setSelectedMonth(e.target.value)
+    const data = await fetchExpenses(e.target.value);
+    console.log(data);
+    setExpenses(data);
+  }
 
   useEffect(() => {
     const getExpenses = async () => {
-      const data = await fetchExpenses();
+      const data = await fetchExpenses(currentMonth);
       setExpenses(data);
-      if (data.length > 0) {
-        setSelectedDate(data[0].date); // Set default date to the first expense's date
-      }
     };
     getExpenses();
   }, []);
 
-  // Extract unique dates from expenses
-  const uniqueDates = [...new Set(expenses.map((exp) => exp.date))];
-
-  // Filter expenses based on selected date
-  const filteredExpenses = expenses.filter((exp) => exp.date === selectedDate);
+  // Filter expenses based on selected month
+  const filteredExpenses = expenses.filter(
+    (exp) => exp.date.startsWith(selectedMonth) // Match YYYY-MM format
+  );
 
   return (
     <div className="p-6 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold text-center mb-4">Insights</h1>
 
-      {/* Date Selection Dropdown */}
+      {/* Month Picker */}
       <div className="mb-4">
-        <label className="block font-semibold mb-2">Select Date:</label>
-        <select
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+        <label className="block font-semibold mb-2">Select Month:</label>
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => handleMonthChange(e)}
           className="border p-2 rounded w-full"
-        >
-          {uniqueDates.map((date) => (
-            <option key={date} value={date}>
-              {date}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
-      {/* Display Expenses for Selected Date */}
+      {/* Display Expenses for Selected Month */}
       {filteredExpenses.length > 0 ? (
         <div>
-          <h2 className="text-lg font-semibold">{selectedDate}</h2>
+          <h2 className="text-lg font-semibold">{selectedMonth}</h2>
           <ul className="mt-2">
             {filteredExpenses.map((exp) => (
               <li key={exp.id} className="p-2 border-b">
@@ -56,11 +55,11 @@ function Insights() {
           </ul>
         </div>
       ) : (
-        <p className="text-gray-500">No expenses for this date.</p>
+        <p className="text-gray-500">No expenses for this month.</p>
       )}
 
       {/* Show Chart if Expenses Exist */}
-      {expenses.length > 0 && <ChartComponent expenses={expenses} />}
+      {expenses.length > 0 && <ChartComponent expenses={filteredExpenses} />}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 
 // Firebase config
 const firebaseConfig = {
@@ -14,6 +14,12 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+const formatMonth = (monthString) => {
+  const [year, month] = monthString.split("-");
+  const date = new Date(year, month - 1); // Month is 0-based in JS Date
+  return date.toLocaleString("en-US", { month: "long", year: "numeric" }).replace(" ", "-");
+};
 
 // Helper function to get the collection name based on month & year
 const getMonthCollection = (date) => {
@@ -38,11 +44,11 @@ export const addExpense = async (expense) => {
   }
 };
 
-export const fetchExpenses = async () => {
+export const fetchExpenses = async (currentMonth) => {
   try {
-    const collectionName = getMonthCollection(new Date());
-    console.log(collectionName)
-    const snapshot = await getDocs(collection(db, collectionName));
+    console.log("Fetching expenses for", getMonthCollection(currentMonth));
+    const snapshot = await getDocs(collection(db, getMonthCollection(currentMonth)));
+    console.log("Fetched expenses successfully", snapshot.docs);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching expenses:", error);
@@ -50,12 +56,37 @@ export const fetchExpenses = async () => {
   }
 };
 
-export const deleteExpense = async (id, monthYear) => {
+
+export const deleteExpense = async (id) => {
   try {
-    const expenseRef = doc(db, monthYear, id);
-    await deleteDoc(expenseRef);
+    const collectionName = getMonthCollection(new Date());
+
+    if (typeof collectionName !== "string") {
+      console.error("Invalid collection name:", collectionName);
+      return { success: false, error: "Invalid collection name" };
+    }
+
+    // Query Firestore to find the document with the matching 'id' field
+    const q = query(collection(db, collectionName), where("id", "==", id));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error(`No document found with id: ${id}`);
+      return { success: false, error: "Document not found" };
+    }
+
+    // Delete all matching documents
+    querySnapshot.forEach(async (docSnap) => {
+      const expenseRef = doc(db, collectionName, docSnap.id);
+      await deleteDoc(expenseRef);
+    });
+
+    console.log(`Expense with id ${id} deleted successfully`);
+    return { success: true };
+
   } catch (error) {
-    console.error("Error deleting expense:", error);
+    console.error(`Error deleting expense (ID: ${id}):`, error);
+    return { success: false, error };
   }
 };
 

@@ -3,11 +3,9 @@ import { deleteExpense } from "../firebase";
 
 function ExpenseList({ expenses, setExpenses, setBalance }) {
   const handleDeleteExpense = async (id) => {
+    console.log(id);
     await deleteExpense(id);
     setExpenses((prev) => prev.filter((exp) => exp.id !== id));
-
-    const deletedExpense = expenses.find((exp) => exp.id === id);
-    setBalance((prev) => prev - (deletedExpense.type === "credit" ? deletedExpense.amount : -deletedExpense.amount));
   };
 
   const today = new Date().toISOString().split("T")[0];
