@@ -11,9 +11,10 @@ function ExpenseForm({ setExpenses, expenses }) {
     "Food",
     "Auto",
     "Gift",
-    "Medicine",
+    "Essentials",
     "Subs",
     "Wants",
+    "Fun",
   ]);
 
   const handleAddExpense = async () => {

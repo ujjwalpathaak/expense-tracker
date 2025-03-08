@@ -29,6 +29,15 @@ function Insights() {
 
   // Filter expenses based on the selected month
   const filteredExpenses = expenses.filter((exp) => exp.date.startsWith(selectedMonth));
+  // combine in category and then find the total amount
+  const data = expenses.reduce((acc, exp) => {
+    acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+    return acc;
+  }, {});
+  const mappedData = Object.entries(data).map(([category, total]) => ({
+    category,
+    total
+  }));
 
   // Extract unique available dates from filtered expenses
   const availableDates = [...new Set(filteredExpenses.map((exp) => exp.date))];
@@ -50,6 +59,14 @@ function Insights() {
           className="border p-2 rounded w-full"
         />
       </div>
+      Total: {filteredExpenses.reduce((acc, exp) => acc + exp.amount, 0)}
+      {
+      mappedData.map((exp) => (
+        <ul key={exp.id} className="p-2 border-b">
+          {exp.category}: ₹{exp.total}
+        </ul>
+      ))
+      }
       {/* Show Chart if Expenses Exist for Selected Date */}
       {expenses.length > 0 && <ChartComponent expenses={filteredExpenses} />}
 
@@ -68,6 +85,7 @@ function Insights() {
       {selectedDate ? (
         dailyExpenses.length > 0 ? (
           <div>
+            Total: {dailyExpenses.reduce((acc, exp) => acc + exp.amount, 0)}
             <ul className="mt-2">
               {dailyExpenses.map((exp) => (
                 <li key={exp.id} className="p-2 border-b">
